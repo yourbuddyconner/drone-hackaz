@@ -4,34 +4,58 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <title>Stream as module</title>
     <script src="/dronestream/nodecopter-client.js" type="text/javascript" charset="utf-8"></script>
+    <link href="https://bootswatch.com/lumen/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
+
+    <div class="container center-block">
     <h1 id="heading">Stream through a normal require("http").createServer</h1>
-    <div id="droneStream" style="width: 640px; height: 360px">   </div>
+    <div id="droneStream" style="width: 1280px; height: 720px">   </div>
 
     <script type="text/javascript" charset="utf-8">
         new NodecopterStream(document.getElementById("droneStream"));
     </script>
-    <form method="post" action="/takeoff">
-        <button type="submit">
-            Take Off
-        </button>
-    </form>
-    <form method="post" action="/clockwise">
-        <button type="submit">
-            Counter-Clockwise
-        </button>
-    </form>
-    <form method="post" action="/stop">
-        <button type="submit">
-            Stop Movement
-        </button>
-    </form>
-    <form method="post" action="/land">
-        <button type="submit">
-            Land
-        </button>
-    </form>
+
+    <div class="row">
+        <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+            <form method="post" action="/takeoff">
+                <button type="submit" class="btn btn-primary" style="width:100%">
+                Take Off
+                </button>
+            </form>
+        </div>
+        <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+            <form method="post" action="/clockwise">
+                 <button type="submit" class="btn btn-primary" style="width:100%">
+                    Counter-Clockwise
+                </button>
+            </form>
+        </div>
+        <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+            <form method="post" action="/stop">
+                <button type="submit" class="btn btn-primary" style="width:100%">
+                    Stop Movement
+                </button>
+            </form>
+        </div>
+        <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+            <form method="post" action="/land">
+                <button type="submit" class="btn btn-primary" style="width:100%">
+                    Land
+                </button>
+            </form>
+        </div>
+
+    </div>
+    
+
+    
+    </div>
+
+    <!-- jQuery -->
+    <script src="http://code.jquery.com/jquery.js"></script>
+    <!-- Bootstrap JavaScript -->
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
     
 </body>
 </html>

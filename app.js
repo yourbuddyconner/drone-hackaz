@@ -83,10 +83,11 @@ app.post('/displaytcpstream', function(req, res) {
     video.pipe(parser);
 });
 
-app.post('/detectFaces', function(req, res) {
+app.post('/filtercolor', function(req, res) {
     var pngStream = drone.getPngStream();
     var originalWindow = new cv.NamedWindow('Original', 1000);
-    var filterWindow = new cv.NamedWindow('Filtered', 1000);
+    var redFilterWindow = new cv.NamedWindow('Red Filtered', 1000);
+    var blueFilterWindow = new cv.NamedWindow('Blue Filtered', 1000);
     var processingImage = false;
     var lastPng;
 
@@ -97,25 +98,51 @@ app.post('/detectFaces', function(req, res) {
             lastPng = pngBuffer;
 
         cv.readImage(lastPng, function(err, im) {
-            var lowThresh = 0;
-            var highThresh = 100;
+
+            // thresholds for red and blue in BGR
+            var red_lower_threshold = [0, 0, 90];
+            var red_upper_threshold = [85, 85, 255];
+            var blue_lower_threshold = [100, 0, 0];
+            var blue_upper_threshold = [255, 140, 120];
+
+            // thresholds for canny points
+            var lowCannyThresh = 0;
+            var highCannyThresh = 100;
             var nIters = 2;
             var maxArea = 2500;
 
+            // colors for the lines
             var GREEN = [0, 255, 0]; // B, G, R
             var WHITE = [255, 255, 255]; // B, G, R
             var RED   = [0, 0, 255]; // B, G, R
 
-            var lower_threshold = [20, 100, 100];
-            var upper_threshold = [130, 255, 255];
-
+            // check for errors
             if (err) throw err;
+            // grab the size for the masks
             var width = im.width();
             var height = im.height();
             if (width < 1 || height < 1) throw new Error('Image has no size');
-            var original = im.copy();
 
-            im.inRange(RED, WHITE);
+            // copy the buffer into new objects
+            var filterRed = im.copy();
+            var filterBlue = im.copy();
+
+            // convert images to HSV
+            //filterRed.convertHSVscale();
+            //filterBlue.convertHSVscale();
+            // truncate all but red
+            filterBlue.inRange(blue_lower_threshold, blue_upper_threshold);
+            // truncate all but blue
+            filterRed.inRange(red_lower_threshold, red_upper_threshold);
+
+            filterBlue.erode(1);
+            // 
+            // blue_canny = filterBlue.copy();
+            // blue_canny = filterBlue.
+
+            // var width = im.width();
+            // var height = im.height();
+
             // var big = new cv.Matrix(height, width);
             // var all = new cv.Matrix(height, width);
 
@@ -142,8 +169,9 @@ app.post('/detectFaces', function(req, res) {
 
         // big.save('./tmp/big.png');
         // all.save('./tmp/all.png');
-        filterWindow.show(im);
-        originalWindow.show(original);
+        redFilterWindow.show(filterRed);
+        blueFilterWindow.show(filterBlue)
+        originalWindow.show(im);
 
         });
     });
@@ -189,4 +217,4 @@ app.post('/circle-attempt', function(req, res){
 //fetch stream and attach to server
 //stream.listen(server);
 //serve http requests at localhost:5555
-server.listen(5555);
+server.listen(5556);

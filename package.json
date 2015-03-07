@@ -1,0 +1,26 @@
+{
+  "name": "drone-hackaz",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourbuddyconner/drone-hackaz.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yourbuddyconner/drone-hackaz/issues"
+  },
+  "homepage": "https://github.com/yourbuddyconner/drone-hackaz",
+  "dependencies": {
+    "ar-drone": "^0.3.3",
+    "body-parser": "^1.12.0",
+    "dronestream": "^1.1.1",
+    "express": "^4.12.2",
+    "http": "0.0.0"
+  }
+}

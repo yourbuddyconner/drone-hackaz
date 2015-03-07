@@ -10,7 +10,8 @@ var server = http.createServer(app);
 //opens up access to TCP stream 
 var stream = require("dronestream");
 //opens up the drone API to control
-var drone = require("ar-drone");
+var arDrone = require('ar-drone');
+var drone = arDrone.createClient();
 
 app.use(bodyparser.urlencoded());
 
@@ -25,15 +26,20 @@ app.post('/', function(req, res) {
   console.log(req.body);
 });
 // makes drone takeoff, turn clockwise, and land
-app.post('/clockwise', function(req, res) {
+app.post('/takeoff', function(req, res) {
     drone.takeoff()
+});
 
-    drone.after(3000, function() {
-        this.clockwise(0.5);
-    })
-    .after(3000, function() {
-        this.land();
-    });
+app.post('/clockwise', function(req, res) {
+    drone.clockwise(0.25);
+});
+
+app.post('/stop', function(req, res) {
+    drone.stop();
+});
+
+app.post('/land', function(req, res) {
+    drone.land();
 });
 
 //fetch stream and attach to server

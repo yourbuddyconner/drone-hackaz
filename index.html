@@ -12,10 +12,26 @@
     <script type="text/javascript" charset="utf-8">
         new NodecopterStream(document.getElementById("droneStream"));
     </script>
-    <form method="post" action="/">
-        <input type="test" name="field1">
-        <input type="test" name="field2">
-        <input type="submit">
+    <form method="post" action="/takeoff">
+        <button type="submit">
+            Take Off
+        </button>
     </form>
+    <form method="post" action="/clockwise">
+        <button type="submit">
+            Counter-Clockwise
+        </button>
+    </form>
+    <form method="post" action="/stop">
+        <button type="submit">
+            Stop Movement
+        </button>
+    </form>
+    <form method="post" action="/land">
+        <button type="submit">
+            Land
+        </button>
+    </form>
+    
 </body>
 </html>

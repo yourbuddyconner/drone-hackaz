@@ -13,6 +13,13 @@ var stream = require("dronestream");
 var arDrone = require('ar-drone');
 var drone = arDrone.createClient();
 
+//static files
+app.use(express.static(__dirname + '/public'));
+
+//autonomous flight
+var autonomy = require('ardrone-autonomy');
+var circle  = autonomy.createMission();
+
 app.use(bodyparser.urlencoded());
 
 //routes
@@ -41,6 +48,42 @@ app.post('/stop', function(req, res) {
 app.post('/land', function(req, res) {
     drone.land();
 });
+
+//take off, zero then attempt an octogon circle
+app.post('/circle-attempt', function(req, res){
+	circle.takeoff()
+		.zero()
+		.cw(30)
+		.right(1)
+		.cw(30)
+		.right(1)
+		.cw(30)
+		.right(1)
+		.cw(30)
+		.right(1)
+		.cw(30)
+		.right(1)
+		.cw(30)
+		.right(1)
+		.cw(30)
+		.right(1)
+		.cw(30)
+		.right(1)
+		.hover(1000)
+		.land();
+
+	circle.run(function (err, result) {
+    if (err) {
+        console.trace("Oops, something bad happened: %s", err.message);
+        circle.client().stop();
+        circle.client().land();
+    } else {
+        console.log("Mission success!");
+        process.exit(0);
+    }
+});
+});	
+
 
 //fetch stream and attach to server
 stream.listen(server);

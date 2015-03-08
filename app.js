@@ -53,8 +53,10 @@ app.post('/land', function(req, res) {
 app.post('/facefinder', function(req, res) {
     // variable declarations
     // max # of misses before search
-    const MISSES = 10;
+    const MISSES = 20;
+    const HITS = 3;
     var missCounter = MISSES;
+    var hitCounter = HITS;
 
     //drone client API
     //var client = arDrone.createClient();
@@ -129,22 +131,28 @@ app.post('/facefinder', function(req, res) {
               }
               // if there is at least one face detected
               if (biggestFace) {
+              	hitCounter--;
+              	if(hitCounter <= 0){
+              		searching = false;
+              	}
                 //log("Width: " + biggestFace.x)
                 //log("Height: " + biggestFace.y)
                 // write the ellipse to the stream
                 im.ellipse(biggestFace.x + biggestFace.width / 2, biggestFace.y + biggestFace.height/2, biggestFace.width/2, biggestFace.height/2);
                 // and render it
                 win.show(im);
-                // count down frames with no face
-                missCounter = MISSES;
                 // attempt to correct position
-                if (!searching)
+                if (!searching){
+                	// count down frames with no face
+                	missCounter = MISSES;
                     correct(biggestFace, im);
+                }
               }
               // if we haven't seen a face for 10 consecutive frames
-              else if (missCounter == 0) {
+              else if (missCounter <= 0) {
                 // search
                 if (!searching) {
+                	hitCounter = HITS;
                     console.log("calling search");
                     srch();
                 }
@@ -171,10 +179,13 @@ app.post('/facefinder', function(req, res) {
       searching = true;
       log('searching');
       //rotate clockwise, then counterclockwise
-      client.counterClockwise(.25);
+      srchChoice = Math.random()
+      if (srchChoice >= .5)
+      	client.counterClockwise(.25);
+      else
+      	client.clockwise(.25)
       client.after(200, function() {
         this.stop();
-        searching = false;
         //this.counterClockwise(.35);
       });
     };
@@ -192,7 +203,7 @@ app.post('/facefinder', function(req, res) {
             searching = true;
             client.stop();
             client.clockwise(.25);
-            client.after(100, function() {
+            client.after(500, function() {
                 client.stop();
                 searching = false;
             });
@@ -202,7 +213,7 @@ app.post('/facefinder', function(req, res) {
             searching = true;
             client.stop();
             client.counterClockwise(.25);
-            client.after(100, function() {
+            client.after(500, function() {
                 client.stop();
                 searching = false;
             });
@@ -212,7 +223,7 @@ app.post('/facefinder', function(req, res) {
             log("Descending");
             searching = true;
             client.down(.25);
-            client.after(100, function() {
+            client.after(500, function() {
                 client.stop();
                 searching = false;
             });
@@ -221,7 +232,7 @@ app.post('/facefinder', function(req, res) {
             log("Ascending");
             searching = true;
             client.up(.25);
-            client.after(100, function() {
+            client.after(500, function() {
                 client.stop();
                 searching = false;
             });
@@ -229,26 +240,25 @@ app.post('/facefinder', function(req, res) {
 
         //handle z-axis
         // if the face's height/width > 1/6 the total image height/width 
-        if (biggestFace.height > im.height() / 7 || biggestFace.width > im.width() / 7) {
+        if (face.height > im.height() / 7 || face.width > im.width() / 7) {
             searching = true;
             // halt movement
             client.stop();
             log("Backing Up")
-            client.back(.25);
-            }).after(100, function() {
+            client.back(.15);
+			client.after(100, function() {
                 // halt movement
                 this.stop();
                 searching = false;
             });
           }
           
-        }
         // else, face isn't that close, CHASE!!
         else {
             searching = true;
             client.stop();
             log("Going Forward");
-            client.front(.25);
+            client.front(.15);
             client.after(100, function() {
                 // halt movement
                 this.stop();

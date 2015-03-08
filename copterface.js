@@ -28,88 +28,38 @@ pngStream
   .on('data', function(pngBuffer) {
     //console.log("got image");
     lastPng = pngBuffer;
+    detectFaces();
   });
      
-  var detectFaces = function(){
-      if( ! flying ) return;
-      if( ( ! processingImage ) && lastPng )
-      {
-        processingImage = true;
-        cv.readImage( lastPng, function(err, im) {
-          var opts = {};
-          im.detectObject(cv.FACE_CASCADE, opts, function(err, faces) {
+var processingImage = false;
+var detectFaces = function() {
+  console.log("Detecting?");
+  console.log(processingImage); 
+  if( ( ! processingImage ) && lastPng ){
+    cv.readImage( lastPng, function(err, im) {
+      var opts = {};
+      im.detectObject(cv.FACE_CASCADE, opts, function(err, faces) {
 
-            var face;
-            var biggestFace;
+        var face;
+        var biggestFace;
 
-            for(var k = 0; k < faces.length; k++) {
-              console.log("look a face!")
-              face = faces[k];
-              im.ellipse(x.x + x.width/2, x.y + x.height/2, x.width/2, x.height/2);
-              if( !biggestFace || biggestFace.width < face.width ) biggestFace = face;
+        for(var k = 0; k < faces.length; k++) {
+          console.log("look a face!")
+          face = faces[k];
+          if( !biggestFace || biggestFace.width < face.width ) biggestFace = face;
+        }
+        if (biggestFace){
+          im.ellipse(biggestFace.x + biggestFace.width/2, biggestFace.y + biggestFace.height/2, biggestFace.width/2, biggestFace.height/2);
+        }
+        win.show(im);
+        processingImage = false;
 
-              //im.rectangle([face.x, face.y], [face.x + face.width, face.y + face.height], [0, 255, 0], 2);
-            }
-            im.save('./lol.png');
-            if( biggestFace ){
-              face = biggestFace;
-              console.log( face.x, face.y, face.width, face.height, im.width(), im.height() );
-
-              face.centerX = face.x + face.width * 0.5;
-              face.centerY = face.y + face.height * 0.5;
-
-              var centerX = im.width() * 0.5;
-              var centerY = im.height() * 0.5;
-
-              var heightAmount = -( face.centerY - centerY ) / centerY;
-              var turnAmount = -( face.centerX - centerX ) / centerX;
-
-              turnAmount = Math.min( 1, turnAmount );
-              turnAmount = Math.max( -1, turnAmount );
-
-              log( turnAmount + " " + heightAmount );
-
-              //heightAmount = Math.min( 1, heightAmount );
-              //heightAmount = Math.max( -1, heightAmount );
-              heightAmount = 0;
-              /*
-              if( Math.abs( turnAmount ) > Math.abs( heightAmount ) ){
-                log( "turning "+turnAmount );
-                if( turnAmount < 0 ) client.clockwise( Math.abs( turnAmount ) );
-                else client.counterClockwise( turnAmount );
-                setTimeout(function(){
-                    log("stopping turn");
-                    client.clockwise(0);
-                    //this.stop();
-                },100);
-              }
-              else {
-                log( "going vertical "+heightAmount );
-                if(  heightAmount < 0 ) client.down( heightAmount );
-                else client.up( heightAmount );
-                setTimeout(function(){
-                  log("stopping altitude change");
-                  
-                  client.up(0);
-
-                },50);*/
-
-              }
-              win.show(im.toBuffer());
-
-            //}
-
-          processingImage = false;
-          //im.save('/tmp/salida.png');
-
-        }, opts.scale, opts.neighbors
-          , opts.min && opts.min[0], opts.min && opts.min[1]);
-        
-      });
-    }
+      }, opts.scale, opts.neighbors, opts.min && opts.min[0], opts.min && opts.min[1]);
+    });
+  }
 };
 
-var faceInterval = setInterval( detectFaces, 150);
+//var faceInterval = setInterval(detectFaces, 150);
 
 /*client.takeoff();
 client.after(5000,function(){ 

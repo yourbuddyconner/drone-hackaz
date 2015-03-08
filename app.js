@@ -90,10 +90,10 @@ app.post('/facefinder', function(req, res) {
     log("Taking Off");
     client.takeoff();
     
-    client.after(5000, function() {
+    client.after(4000, function() {
       log('going up');
       this.up(.25);
-    }).after(2000, function() {
+    }).after(4000, function() {
       log('stopping');
       this.stop();
       flying = true;
@@ -129,8 +129,8 @@ app.post('/facefinder', function(req, res) {
               }
               // if there is at least one face detected
               if (biggestFace) {
-                log("Width: " + biggestFace.x)
-                log("Height: " + biggestFace.y)
+                //log("Width: " + biggestFace.x)
+                //log("Height: " + biggestFace.y)
                 // write the ellipse to the stream
                 im.ellipse(biggestFace.x + biggestFace.width / 2, biggestFace.y + biggestFace.height/2, biggestFace.width/2, biggestFace.height/2);
                 // and render it
@@ -138,24 +138,8 @@ app.post('/facefinder', function(req, res) {
                 // count down frames with no face
                 missCounter = MISSES;
                 // attempt to correct position
-                correct(biggestFace, im);
-                // if the face's height/width > 1/6 the total image height/width 
-                if (biggestFace.height > im.height() / 9 || biggestFace.width > im.width()/9) {
-                  // halt movement
-                  client.stop();
-                  client.after(100, function() {
-                    // back up real quick
-                    client.back(.25);
-                  }).after(500, function() {
-                    // halt movement
-                    client.stop();
-                  });
-                }
-                // else, face isn't that close, CHASE!!
-                else {
-                  client.stop();
-                  client.front(.1);
-                }
+                if (!searching)
+                    correct(biggestFace, im);
               }
               // if we haven't seen a face for 10 consecutive frames
               else if (missCounter == 0) {
@@ -188,8 +172,9 @@ app.post('/facefinder', function(req, res) {
       log('searching');
       //rotate clockwise, then counterclockwise
       client.counterClockwise(.25);
-      client.after(500, function() {
+      client.after(200, function() {
         this.stop();
+        searching = false;
         //this.counterClockwise(.35);
       });
     };
@@ -197,44 +182,79 @@ app.post('/facefinder', function(req, res) {
     // function to attempt and center face on the current and
     // subsequent frames
     var correct = function(face, im) {
-      // center of x-axis in pixels
-      var faceCenterX = face.x + (face.width / 2);
-      // center of y-axis in pixels
-      var faceCenterY = face.y + (face.height / 2);
-      // if face right of center
-      if (faceCenterX > im.width() / 2) {
-        log("Rotating Clockwise");
-        client.stop();
-        client.clockwise(.25);
-        client.after(500, function() {
-          client.stop();
-        });
-      }
-      //if face left of center
-      else if (faceCenterX < im.width() / 2) {
-        log("Rotating Counter-Clockwise");
-        client.stop();
-        client.counterClockwise(.25);
-        client.after(500, function() {
-          client.stop();
-        });
-      }
-      //if face is above center
-      if (faceCenterY > im.height() / 2) {
-        log("Descending");
-        client.down(.25);
-        client.after(500, function() {
-          client.stop();
-        });
-      }
-      //if face is below center
-      else if (faceCenterY < im.height() / 2) {
-        log("Ascending");
-        client.up(.25);
-        client.after(500, function() {
-          client.stop();
-        });
-      }
+        // center of x-axis in pixels
+        var faceCenterX = face.x + (face.width / 2);
+        // center of y-axis in pixels
+        var faceCenterY = face.y + (face.height / 2);
+        // handle x-axis
+        if (faceCenterX > im.width() / 2) {
+            log("Rotating Clockwise");
+            searching = true;
+            client.stop();
+            client.clockwise(.25);
+            client.after(100, function() {
+                client.stop();
+                searching = false;
+            });
+        }
+        else if (faceCenterX < im.width() / 2) {
+            log("Rotating Counter-Clockwise");
+            searching = true;
+            client.stop();
+            client.counterClockwise(.25);
+            client.after(100, function() {
+                client.stop();
+                searching = false;
+            });
+        }
+        //Handle y-axis
+        if (faceCenterY > im.height() / 2) {
+            log("Descending");
+            searching = true;
+            client.down(.25);
+            client.after(100, function() {
+                client.stop();
+                searching = false;
+            });
+        }
+        else if (faceCenterY < im.height() / 2) {
+            log("Ascending");
+            searching = true;
+            client.up(.25);
+            client.after(100, function() {
+                client.stop();
+                searching = false;
+            });
+        }
+
+        //handle z-axis
+        // if the face's height/width > 1/6 the total image height/width 
+        if (biggestFace.height > im.height() / 7 || biggestFace.width > im.width() / 7) {
+            searching = true;
+            // halt movement
+            client.stop();
+            log("Backing Up")
+            client.back(.25);
+            }).after(100, function() {
+                // halt movement
+                this.stop();
+                searching = false;
+            });
+          }
+          
+        }
+        // else, face isn't that close, CHASE!!
+        else {
+            searching = true;
+            client.stop();
+            log("Going Forward");
+            client.front(.25);
+            client.after(100, function() {
+                // halt movement
+                this.stop();
+                searching = false;
+            });
+        }
     };
 });
 

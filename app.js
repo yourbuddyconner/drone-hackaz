@@ -136,47 +136,36 @@ app.post('/filtercolor', function(req, res) {
             filterRed.inRange(red_lower_threshold, red_upper_threshold);
 
             filterBlue.erode(1);
-            // 
-            // blue_canny = filterBlue.copy();
-            // blue_canny = filterBlue.
+            filterRed.erode(2);
 
-            // var width = im.width();
-            // var height = im.height();
 
-            // var big = new cv.Matrix(height, width);
-            // var all = new cv.Matrix(height, width);
+            var blueContours = filterBlue.findContours();
+            var redContours = filterRed.findContours()
 
-            // im.convertGrayscale();
-            // im_canny = im.copy();
+            // Access vertex data of contours
+            var biggestBlueContour = 1;
+            for (var c = 0; c < blueContours.size(); ++c) {
+                if (blueContours.area(c) > blueContours.area(biggestBlueContour)) {
+                    biggestBlueContour = c;
+                }
+            }
+            var biggestRedContour = 1;
+            for (var c = 0; c < redContours.size(); ++c) {
+                if (redContours.area(c) > redContours.area(biggestRedContour)) {
+                    biggestRedContour = c;
+                }
+            }
+            console.log(redContours.area(biggestRedContour));
+            blueContours.convexHull(biggestBlueContour, false);
+            blueContours.convexHull(biggestRedContour, false);
 
-            // im_canny.canny(lowThresh, highThresh);
-            // im_canny.dilate(nIters);
-
-            // contours = im_canny.findContours();
-
-            // for (i = 0; i < contours.size(); i++) {
-            //     if (contours.area(i) > maxArea) {
-            //         var moments = contours.moments(i);
-            //         var cgx = Math.round(moments.m10 / moments.m00);
-            //         var cgy = Math.round(moments.m01 / moments.m00);
-            //         big.drawContour(contours, i, GREEN);
-            //         big.line([cgx - 5, cgy], [cgx + 5, cgy], RED);
-            //         big.line([cgx, cgy - 5], [cgx, cgy + 5], RED);
-                // }       
-        //}
-
-        //all.drawAllContours(contours, WHITE);
-
-        // big.save('./tmp/big.png');
-        // all.save('./tmp/all.png');
-        redFilterWindow.show(filterRed);
-        blueFilterWindow.show(filterBlue)
-        originalWindow.show(im);
-
+            filterBlue.drawContour(blueContours, biggestBlueContour, RED);
+            filterBlue.drawContour(redContours, biggestRedContour, RED);
+            redFilterWindow.show(filterRed);
+            blueFilterWindow.show(filterBlue)
+            originalWindow.show(im);
         });
     });
-//res.sendfile('./tmp/big.png');
-
 });
 
 //take off, zero then attempt an octogon circle

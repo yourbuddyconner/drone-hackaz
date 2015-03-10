@@ -1,0 +1,20 @@
+{
+  "name": "JackHacks",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourbuddyconner/drone-hackaz/"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "buffy": "0.0.5",
+    "jsfeat": "0.0.4",
+    "ws": "^0.7.1"
+  }
+}

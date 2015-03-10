@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>Hack Jacks!</title>
+    <script src="js/nodecopter-client.js" type="text/javascript" charset="utf-8"></script>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <div class="container center-block">
+    <h1 id="heading">Hack Jacks Hack Drones</h1>
+
+    <div class="row">
+        <div id="droneStream" ></div>
+        <div class="col-lg-3">
+            <form method="post" action="/detectfaces">
+                <button type="submit" class="btn btn-primary" style="width:100%">
+                    Detect Faces
+                </button>
+            </form>
+        </div>
+    </div>
+    <!-- jQuery -->
+    <script src="js/jquery.js"></script>
+    <!-- Bootstrap JavaScript -->
+    <script src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        new NodecopterStream(document.getElementById("droneStream"));
+    </script>
+</body>
+</html>

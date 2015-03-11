@@ -9,24 +9,130 @@
 <body>
 
     <div class="container center-block">
-    <h1 id="heading">Hack Jacks Hack Drones</h1>
+    <h1 id="heading" class="text-center">Hack Jacks Hack Drones</h1>
 
     <div class="row">
-        <div id="droneStream" ></div>
-        <div class="col-lg-3">
+        <div class="col-lg-12 text-center">
+            <div class="col-lg-10">
+                <div id="droneStream"></div>
+            </div>
+            <div class="col-lg-2">
+                <h1>Telemetry</h1>
+                <div class="text-left">
+                    <p id="battery"></p>
+                    <p id="altitude"></p>
+                    <p id="xVelocity"></p>
+                    <p id="yVelocity"></p>
+                    <p id="zVelocity"></p>
+                    <p id="battery"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row text-center">
+        <div class="col-lg-6">
+            <h1>
+                Controls 
+            </h1>
+            <button id="ManualOverride" class="btn btn-danger" style="width:100%;">
+                Manual Override (Xbox Controller)
+            </button>
+            <hr>
+            <button id="ToggleFrontCamera" class="btn btn-primary" style="width:100%;">
+                Switch to Bottom
+            </button>
+            <hr>
+        </div>
+        <div  class="col-lg-6">
+            <h1>
+                Experimental Stuff
+            </h1>
             <form method="post" action="/detectfaces">
-                <button type="submit" class="btn btn-primary" style="width:100%">
+                <button type="submit" class="btn btn-primary">
                     Detect Faces
                 </button>
             </form>
+            <hr>
+            <button id="ToggleUSBVideo" class="btn btn-warning" style="width:100%;">
+                Turn USB Video Off
+            </button>
         </div>
     </div>
-    <!-- jQuery -->
-    <script src="js/jquery.js"></script>
-    <!-- Bootstrap JavaScript -->
-    <script src="js/bootstrap.min.js"></script>
-    <script type="text/javascript" charset="utf-8">
-        new NodecopterStream(document.getElementById("droneStream"));
-    </script>
 </body>
+<!-- jQuery -->
+<script src="js/jquery.js"></script>
+<!-- Bootstrap JavaScript -->
+<script src="js/bootstrap.min.js"></script>
+<script type="text/javascript" charset="utf-8">
+    new NodecopterStream(document.getElementById("droneStream"));
+</script>
+<script type="text/javascript">
+    $("#ManualOverride").click(function() {
+        $.post("/manual_override", function(data) {
+            if (data) {
+                $("#ManualOverride").removeClass("btn-danger");
+                $("#ManualOverride").addClass("btn-success");
+                $("#ManualOverride").html("Manual Override Activated");
+            }
+            else {
+                $("#ManualOverride").addClass("btn-danger");
+                $("#ManualOverride").removeClass("btn-success");
+                $("#ManualOverride").html("Manual Override (Xbox Controller)");
+            }
+        });
+    });
+    $("#ToggleFrontCamera").click(function() {
+        $.post("/toggle_front_camera")
+        .done(function(data) {
+            //if front camera is on
+            if (data) {
+                $("#ToggleFrontCamera").addClass("btn-warning");
+                $("#ToggleFrontCamera").removeClass("btn-primary");
+                $("#ToggleFrontCamera").html("Switch to Bottom");
+            }
+            //we're on the bottom camera
+            else {
+                $("#ToggleFrontCamera").addClass("btn-primary");
+                $("#ToggleFrontCamera").removeClass("btn-warning");
+                $("#ToggleFrontCamera").html("Switch to Front");
+            }
+        });
+    });
+    $("#ToggleUSBVideo").click(function() {
+        $.post("/toggle_usb_video")
+        .done(function(data) {
+            //usb vidso is off
+            if (!data) {
+                $("#ToggleUSBVideo").addClass("btn-danger");
+                $("#ToggleUSBVideo").removeClass("btn-warning");
+                $("#ToggleUSBVideo").html("Turn USB Video Off");
+            }
+            //it's on
+            else {
+                $("#ToggleUSBVideo").addClass("btn-warning");
+                $("#ToggleUSBVideo").removeClass("btn-danger");
+                $("#ToggleUSBVideo").html("Turn USB Video On");
+            }
+        });
+    });
+    var missedCount = 0;
+    timeout = setInterval(function() {
+        $.get("/get_nav_data")
+        .done(function(data) {
+            //console.log(data);
+            $("#battery").html("Battery Level: " + data.demo.batteryPercentage);
+            $("#altitude").html("Altitude: " + data.demo.altitude);
+            $("#xVelocity").html("xVelocity: " + data.demo.xVelocity);
+            $("#yVelocity").html("yVelocity: " + data.demo.yVelocity);
+            $("#zVelocity").html("zVelocity: " + data.demo.zVelocity);
+            $("#ManualOverride").html("Manual Override (Xbox Controller)");
+        })
+        .fail(function() {
+            missedCount++
+        });
+    }, 500);
+    if (missedCount > 10)
+        clearInterval(timeout)
+
+</script>
 </html>
